@@ -74,6 +74,8 @@ export default class FinishOverlay {
             .addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
             .once('down', () => {
               this._emitters.forEach(e => e.destroy());
+              scene.anims.resumeAll();
+              scene.physics.resume();
               scene.scene.restart();
             });
         });

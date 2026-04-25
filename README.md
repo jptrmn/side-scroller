@@ -2,7 +2,7 @@
 
 A 2D platformer for speech therapy by **Pitzi-Games Studios**.
 
-The player controls a Ninja Frog through a side-scrolling world. Hitting boxes from below breaks them and releases fruit or exercise coins. Collecting a coin pauses the game and shows a tongue-exercise illustration — the child performs the exercise, presses Space, and the game resumes.
+The player controls a Ninja Frog through a side-scrolling world. Hitting boxes from below breaks them and releases fruit or exercise coins. Collecting a coin pauses the game and shows a tongue-exercise illustration — the child holds the position through a 5-second countdown, then the game resumes. The level is complete when every last point is collected.
 
 ---
 
@@ -26,7 +26,7 @@ Requires Node.js 18+.
 | Arrow Left / A | Move left |
 | Arrow Right / D | Move right |
 | Arrow Up / W / Space | Jump |
-| Space (in overlay) | Mark exercise done, resume game |
+| Space (in overlay) | Start countdown / confirm exercise |
 
 Double-jump and wall-jump are supported.
 
@@ -42,36 +42,37 @@ Run & jump through the level
         │
    ┌────┴────┐
    │         │
-  70%       30%
+  40%       60%
  Fruit    Exercise coin
    │         │
-collect    collect
+collect    collect (+5 pts)
    │         │
 +1 pt     Game pauses
 sparkle       │
   gone    Show tongue exercise
-          (random, one of 5)
+          (random, one of 6)
                │
            Press Space
                │
          5-second countdown
                │
-           Game resumes
-               │
-           +5 pts scored
+        "SUPER!" + resume
 ```
 
-Reach the end of the level to see the finish screen with your final score.
+All box outcomes are decided before the level starts — the score total shown in the HUD is fixed from frame one. The level ends when `current = total` (every fruit and coin collected).
 
 ### Exercises
 
 | Label | Movement |
 |-------|----------|
-| Zunge zur Nase | Tongue up |
-| Zunge zum Kinn | Tongue down |
-| Zunge nach links | Tongue left |
+| Zunge zur Nase | Tongue up to nose |
 | Zunge nach rechts | Tongue right |
-| Zunge nach Hause | Tongue to rest position |
+| Zunge zum Kinn | Tongue down to chin |
+| Backen aufpusten | Puff cheeks |
+| Zunge nach rechts oben | Tongue upper-right |
+| Zunge in die Wange links | Tongue into left cheek |
+
+Illustrations are pixel-art sprites from `assets/spritepack-zunge.png` (5×2 grid, 290×368 per cell).
 
 ---
 
@@ -112,22 +113,25 @@ src/
   main.js              Phaser.Game config
   constants.js         Tuning values (speeds, world size, probabilities)
   scenes/
-    BootScene.js       Asset loading, texture setup, animation definitions, sound init
-    GameScene.js       World, physics, game loop, dust emitter, finish detection
+    BootScene.js       Asset loading, spritesheet + texture setup, anims, sound init
+    GameScene.js       World, physics, score total, completion check, dust emitter
   objects/
     Player.js          Ninja Frog — movement, jumps, coyote time, animation state machine
     Fruit.js           Collectible sprite
-    Box.js             Breakable box — hit detection, spawn callback
-    ExerciseCoin.js    Floating coin spawned by boxes — spawn scale anim, float tween
+    Box.js             Breakable box — spawn type pre-rolled at construction, hit detection
+    ExerciseCoin.js    Floating coin — spawn scale anim, float tween
   data/
     level.js           Fruit, box, and coin spawn positions
-    exercises.js       5 tongue-exercise definitions (label + canvas draw function)
+    exercises.js       6 exercise definitions {frame, label} — index into 'zunge' spritesheet
   ui/
-    ExerciseOverlay.js Pause overlay — illustration, 5s countdown, reward, resume
+    ExerciseOverlay.js Pause overlay — sprite illustration, 5s countdown, reward, resume
     ScoreHUD.js        Top-right score counter (current / total)
-    FinishOverlay.js   End-of-level screen — confetti, score, Space to restart
+    FinishOverlay.js   End-of-level screen — confetti cannons, fireworks, score, restart
   utils/
     sounds.js          Web Audio API synthesizer — SFX object
+assets/
+  PixelAdventure/      Sprite pack (do not modify)
+  spritepack-zunge.png Exercise face illustrations (5×2 grid, 290×368 per cell)
 docs/
   architecture.md      Module map, scene lifecycle, physics overview
   state.md             Where all state and data live

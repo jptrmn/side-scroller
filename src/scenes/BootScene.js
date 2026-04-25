@@ -46,6 +46,7 @@ export default class BootScene extends Phaser.Scene {
 
   create() {
     this._registerTerrainTiles();
+    this._registerDustTexture();
     this._registerExerciseTextures();
     this._defineAnims();
     this.scene.start('GameScene');
@@ -59,6 +60,14 @@ export default class BootScene extends Phaser.Scene {
       drawCanvas(canvas.getContext('2d'));
       this.textures.addCanvas(key, canvas);
     }
+  }
+
+  _registerDustTexture() {
+    const c = document.createElement('canvas');
+    c.width = 4; c.height = 4;
+    c.getContext('2d').fillStyle = '#e8e8e8';
+    c.getContext('2d').fillRect(0, 0, 4, 4);
+    this.textures.addCanvas('dust', c);
   }
 
   _registerTerrainTiles() {

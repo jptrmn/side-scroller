@@ -22,14 +22,22 @@ export default class ExerciseCoin extends Phaser.Physics.Arcade.Sprite {
     this.body.setImmovable(true);
     this.body.setSize(14, 14);
 
-    // Gentle float tween
+    this.setScale(0);
     scene.tweens.add({
       targets: this,
-      y: y - 5,
-      duration: 900,
-      ease: 'Sine.easeInOut',
-      yoyo: true,
-      repeat: -1,
+      scaleX: 1, scaleY: 1,
+      duration: 200,
+      ease: 'Back.Out',
+      onComplete: () => {
+        scene.tweens.add({
+          targets: this,
+          y: y - 5,
+          duration: 900,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1,
+        });
+      },
     });
   }
 }

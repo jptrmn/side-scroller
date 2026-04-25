@@ -12,6 +12,9 @@ export default class Fruit extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(16, 16);
 
     this.play(`fruit-${type}`);
+
+    this.setScale(0);
+    scene.tweens.add({ targets: this, scaleX: 1, scaleY: 1, duration: 200, ease: 'Back.Out' });
   }
 
   collect() {

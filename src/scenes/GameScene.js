@@ -48,6 +48,16 @@ export default class GameScene extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.terrain);
 
+    this._dustEmitter = this.add.particles(0, 0, 'dust', {
+      speed:    { min: 20, max: 55 },
+      angle:    { min: 200, max: 340 },
+      scale:    { start: 1, end: 0 },
+      lifespan: 320,
+      gravityY: 80,
+      emitting: false,
+    });
+    this._playerWasOnGround = false;
+
     // Fruits
     this.fruitGroup = this.add.group();
     for (const fd of FRUITS) {
@@ -138,5 +148,11 @@ export default class GameScene extends Phaser.Scene {
   update() {
     this.player.update(this.cursors);
     this.bg.tilePositionX = this.cameras.main.scrollX * 0.25;
+
+    const nowOnGround = this.player.body.blocked.down;
+    if (!this._playerWasOnGround && nowOnGround) {
+      this._dustEmitter.explode(6, this.player.x, this.player.y + 14);
+    }
+    this._playerWasOnGround = nowOnGround;
   }
 }

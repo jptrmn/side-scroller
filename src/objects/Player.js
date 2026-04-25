@@ -3,6 +3,7 @@ import {
   PLAYER_SPEED,
   JUMP_VEL, DOUBLE_JUMP_VEL,
   WALL_JUMP_VEL_Y, WALL_JUMP_VEL_X, WALL_SLIDE_VEL,
+  COYOTE_FRAMES,
 } from '../constants.js';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -18,6 +19,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(1);
 
     this._jumpsLeft = 2;
+    this._coyoteFrames = 0;
     this._wasOnGround = false;
     this._wallLockFrames = 0;  // suppresses horizontal input after wall jump
     this._animLocked = false;
@@ -40,8 +42,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     const onRight  = body.blocked.right;
     const inAir    = !onGround;
 
-    if (onGround && !this._wasOnGround) {
-      this._jumpsLeft = 2;
+    if (onGround) {
+      this._jumpsLeft    = 2;
+      this._coyoteFrames = COYOTE_FRAMES;
+    } else if (this._coyoteFrames > 0) {
+      this._coyoteFrames--;
+      if (this._coyoteFrames === 0) {
+        this._jumpsLeft = Math.min(this._jumpsLeft, 1);
+      }
     }
     this._wasOnGround = onGround;
 
@@ -56,14 +64,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       body.setVelocityY(WALL_JUMP_VEL_Y);
       body.setVelocityX(WALL_JUMP_VEL_X * dir);
       this._wallLockFrames = 18;
+      this._coyoteFrames = 0;
       this.setFlipX(dir < 0);
       this._playLocked('frog-walljump');
     }
-    // First jump or double jump
+    // First jump (ground or coyote window) or double jump
     else if (jumpJustDown && this._jumpsLeft > 0) {
-      const isFirst = this._jumpsLeft === 2;
+      const isFirst = this._coyoteFrames > 0;
       body.setVelocityY(isFirst ? JUMP_VEL : DOUBLE_JUMP_VEL);
       this._jumpsLeft--;
+      this._coyoteFrames = 0;
       if (isFirst) {
         this.play('frog-jump', true);
       } else {

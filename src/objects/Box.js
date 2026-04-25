@@ -10,8 +10,11 @@ export default class Box extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this, true);  // static body
 
-    this._type = type;
+    this._type     = type;
     this._breaking = false;
+    this.spawnType = Math.random() >= BOX_FRUIT_CHANCE
+      ? 'exercise'
+      : FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)];
   }
 
   hitFromBelow(spawnCallback) {
@@ -23,12 +26,7 @@ export default class Box extends Phaser.Physics.Arcade.Sprite {
     this.once('animationcomplete', () => {
       this.play(`box${this._type}-break`);
       this.once('animationcomplete', () => {
-        const isExercise = Math.random() >= BOX_FRUIT_CHANCE;
-        const spawnType = isExercise
-          ? 'exercise'
-          : FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)];
-
-        if (spawnCallback) spawnCallback(this.x, this.y - 20, spawnType);
+        if (spawnCallback) spawnCallback(this.x, this.y - 20, this.spawnType);
         this.destroy();
       });
     });

@@ -1,7 +1,12 @@
+import Phaser from 'phaser';
+
+const TINTS = [0xff4444, 0x44dd44, 0x4488ff, 0xffee44, 0xff44ff, 0x44ffee, 0xffa500, 0xffffff];
+
 export default class FinishOverlay {
   constructor(scene, score, total) {
-    this._scene = scene;
-    this._objs  = [];
+    this._scene    = scene;
+    this._objs     = [];
+    this._emitters = [];
     const cx = 200, cy = 120;
 
     // Backdrop
@@ -10,18 +15,7 @@ export default class FinishOverlay {
     this._track(bd);
     scene.tweens.add({ targets: bd, alpha: 0.78, duration: 300 });
 
-    // Confetti — rains from top, reuses the 'dust' texture with tinting
-    this._confetti = scene.add.particles(200, -10, 'dust', {
-      tint:     [0xff4444, 0x44dd44, 0x4488ff, 0xffee44, 0xff44ff, 0x44ffee],
-      speed:    { min: 30, max: 100 },
-      angle:    { min: 70, max: 110 },
-      scaleX:   { min: 0.5, max: 2.5 },
-      scaleY:   { min: 0.5, max: 1.5 },
-      lifespan: 3000,
-      gravityY: 50,
-      frequency: 40,
-      quantity:  3,
-    }).setScrollFactor(0).setDepth(66);
+    this._launchCannons();
 
     // Card
     const cardGfx = scene.add.graphics().setScrollFactor(0).setDepth(67).setAlpha(0);
@@ -79,11 +73,81 @@ export default class FinishOverlay {
           scene.input.keyboard
             .addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
             .once('down', () => {
-              this._confetti.destroy();
+              this._emitters.forEach(e => e.destroy());
               scene.scene.restart();
             });
         });
       },
+    });
+  }
+
+  _launchCannons() {
+    const scene = this._scene;
+
+    // Left cannon — bottom-left, fan upward-right
+    const left = scene.add.particles(22, 252, 'dust', {
+      tint:     TINTS,
+      speed:    { min: 150, max: 280 },
+      angle:    { min: 282, max: 342 },
+      scaleX:   { min: 1.0, max: 3.2 },
+      scaleY:   { min: 0.3, max: 1.0 },
+      rotate:   { min: -180, max: 180 },
+      lifespan: { min: 1600, max: 2800 },
+      gravityY: 220,
+      emitting: false,
+    }).setScrollFactor(0).setDepth(66);
+    this._emitters.push(left);
+
+    // Right cannon — bottom-right, fan upward-left
+    const right = scene.add.particles(378, 252, 'dust', {
+      tint:     TINTS,
+      speed:    { min: 150, max: 280 },
+      angle:    { min: 198, max: 258 },
+      scaleX:   { min: 1.0, max: 3.2 },
+      scaleY:   { min: 0.3, max: 1.0 },
+      rotate:   { min: -180, max: 180 },
+      lifespan: { min: 1600, max: 2800 },
+      gravityY: 220,
+      emitting: false,
+    }).setScrollFactor(0).setDepth(66);
+    this._emitters.push(right);
+
+    // Initial blast
+    left.explode(40);
+    right.explode(40);
+
+    // Four follow-up salvos
+    scene.time.addEvent({
+      delay: 1100,
+      repeat: 4,
+      callback: () => {
+        left.explode(22);
+        right.explode(22);
+      },
+    });
+
+    // Firework pops across the upper screen, staggered
+    const pops = [[80, 45], [320, 50], [200, 35], [110, 80], [295, 68], [200, 52]];
+    pops.forEach(([x, y], i) => {
+      scene.time.delayedCall(200 + i * 380, () => {
+        const fw = scene.add.particles(x, y, 'dust', {
+          tint:     TINTS,
+          speed:    { min: 55, max: 140 },
+          angle:    { min: 0,   max: 360 },
+          scale:    { start: 2.2, end: 0 },
+          alpha:    { start: 1,   end: 0 },
+          lifespan: { min: 380,  max: 680 },
+          gravityY: 55,
+          emitting: false,
+        }).setScrollFactor(0).setDepth(66);
+        fw.explode(24);
+        this._emitters.push(fw);
+        scene.time.delayedCall(800, () => {
+          const idx = this._emitters.indexOf(fw);
+          if (idx !== -1) this._emitters.splice(idx, 1);
+          fw.destroy();
+        });
+      });
     });
   }
 

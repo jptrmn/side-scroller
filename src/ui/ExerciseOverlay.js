@@ -52,14 +52,14 @@ export default class ExerciseOverlay {
     const coinScreenX = this._coin.x - cam.scrollX;
     const coinScreenY = this._coin.y - cam.scrollY;
 
-    this._illo = scene.add.image(coinScreenX, coinScreenY, this._exercise.key)
-      .setScrollFactor(0).setDepth(62).setScale(0.15).setAlpha(0);
+    this._illo = scene.add.image(coinScreenX, coinScreenY, 'zunge', this._exercise.frame)
+      .setScrollFactor(0).setDepth(62).setScale(0.03).setAlpha(0);
     this._track(this._illo);
 
     scene.tweens.add({
       targets: this._illo,
       x: cx, y: cy - 20,
-      scaleX: 1.25, scaleY: 1.25,
+      scaleX: 0.27, scaleY: 0.27,
       alpha: 1,
       duration: 380,
       delay: 260,
@@ -162,11 +162,11 @@ export default class ExerciseOverlay {
 
     scene.tweens.add({
       targets: this._illo,
-      scaleX: 1.6, scaleY: 1.6,
+      scaleX: 0.35, scaleY: 0.35,
       duration: 200,
       ease: 'Quad.Out',
       yoyo: true,
-      onComplete: () => { this._illo.setScale(1.25); },
+      onComplete: () => { this._illo.setScale(0.27); },
     });
 
     const doneText = scene.add.text(cx, cy + 58, '✓  SUPER!', {
@@ -198,6 +198,8 @@ export default class ExerciseOverlay {
         scene.player._inputDisabled = true;
         scene.time.delayedCall(180, () => {
           scene.player._inputDisabled = false;
+          scene._overlayActive = false;
+          scene._checkFinish();
         });
       },
     });

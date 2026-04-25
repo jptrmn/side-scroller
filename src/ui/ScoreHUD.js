@@ -27,11 +27,6 @@ export default class ScoreHUD {
     });
   }
 
-  addToTotal(pts) {
-    this.total += pts;
-    this._redraw();
-  }
-
   _redraw() {
     this._text.setText(`${this.current} / ${this.total}`);
     const b = this._text.getBounds();

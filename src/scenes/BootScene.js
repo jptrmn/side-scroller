@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { EXERCISES } from '../data/exercises.js';
 import { initSounds } from '../utils/sounds.js';
 
 const PA = 'assets/PixelAdventure';
@@ -36,6 +35,8 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('fruit-strawberry', `${fruits}/Strawberry.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('fruit-collected',  `${fruits}/Collected.png`,  { frameWidth: 32, frameHeight: 32 });
 
+    this.load.spritesheet('zunge', 'assets/spritepack-zunge.png', { frameWidth: 290, frameHeight: 368 });
+
     // Boxes — Idle is a single image; Hit=3 frames, Break=4 frames, all at 28×24
     const boxes = `${PA}/Items/Boxes`;
     for (const n of [1, 2, 3]) {
@@ -48,20 +49,9 @@ export default class BootScene extends Phaser.Scene {
   create() {
     this._registerTerrainTiles();
     this._registerDustTexture();
-    this._registerExerciseTextures();
     this._defineAnims();
     initSounds(this);
     this.scene.start('GameScene');
-  }
-
-  _registerExerciseTextures() {
-    for (const { key, drawCanvas } of EXERCISES) {
-      const canvas = document.createElement('canvas');
-      canvas.width  = 64;
-      canvas.height = 64;
-      drawCanvas(canvas.getContext('2d'));
-      this.textures.addCanvas(key, canvas);
-    }
   }
 
   _registerDustTexture() {

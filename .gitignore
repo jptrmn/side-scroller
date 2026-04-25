@@ -14,3 +14,4 @@ Thumbs.db
 
 # Zip assets (large, derivable)
 assets/*.zip
+assets/tmp/

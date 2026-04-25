@@ -47,15 +47,21 @@ Run & jump through the level
    │         │
 collect    collect
    │         │
-sparkle   Game pauses
-  gone         │
-          Show tongue exercise
++1 pt     Game pauses
+sparkle       │
+  gone    Show tongue exercise
           (random, one of 5)
                │
            Press Space
                │
+         5-second countdown
+               │
            Game resumes
+               │
+           +5 pts scored
 ```
+
+Reach the end of the level to see the finish screen with your final score.
 
 ### Exercises
 
@@ -66,6 +72,23 @@ sparkle   Game pauses
 | Zunge nach links | Tongue left |
 | Zunge nach rechts | Tongue right |
 | Zunge nach Hause | Tongue to rest position |
+
+---
+
+## Sound
+
+All sound effects are synthesized at runtime via the Web Audio API — no audio files are bundled. Each SFX is a square-wave oscillator with a frequency ramp and gain envelope. The engine is initialized once in `BootScene` and called from game objects and UI components through the shared `SFX` object in `src/utils/sounds.js`.
+
+| Sound | Trigger |
+|-------|---------|
+| Jump / double-jump | Player jumps |
+| Land thud | Player touches ground |
+| Fruit chime | Fruit collected |
+| Box crunch | Box hit from below |
+| Coin ring | Exercise coin collected |
+| Countdown tick | Each second of the exercise countdown |
+| C–E–G–C arpeggio | Exercise completed |
+| C-major fanfare | Level finished |
 
 ---
 
@@ -89,18 +112,22 @@ src/
   main.js              Phaser.Game config
   constants.js         Tuning values (speeds, world size, probabilities)
   scenes/
-    BootScene.js       Asset loading, texture setup, animation definitions
-    GameScene.js       World, physics, game loop
+    BootScene.js       Asset loading, texture setup, animation definitions, sound init
+    GameScene.js       World, physics, game loop, dust emitter, finish detection
   objects/
-    Player.js          Ninja Frog — movement, jumps, animation state machine
+    Player.js          Ninja Frog — movement, jumps, coyote time, animation state machine
     Fruit.js           Collectible sprite
     Box.js             Breakable box — hit detection, spawn callback
-    ExerciseCoin.js    Floating coin spawned by boxes
+    ExerciseCoin.js    Floating coin spawned by boxes — spawn scale anim, float tween
   data/
-    level.js           Fruit and box spawn positions
+    level.js           Fruit, box, and coin spawn positions
     exercises.js       5 tongue-exercise definitions (label + canvas draw function)
   ui/
-    ExerciseOverlay.js Pause overlay — illustration, label, Space to dismiss
+    ExerciseOverlay.js Pause overlay — illustration, 5s countdown, reward, resume
+    ScoreHUD.js        Top-right score counter (current / total)
+    FinishOverlay.js   End-of-level screen — confetti, score, Space to restart
+  utils/
+    sounds.js          Web Audio API synthesizer — SFX object
 docs/
   architecture.md      Module map, scene lifecycle, physics overview
   state.md             Where all state and data live

@@ -4,6 +4,8 @@ import Fruit from '../objects/Fruit.js';
 import Box from '../objects/Box.js';
 import ExerciseCoin from '../objects/ExerciseCoin.js';
 import ExerciseOverlay from '../ui/ExerciseOverlay.js';
+import ScoreHUD from '../ui/ScoreHUD.js';
+import FinishOverlay from '../ui/FinishOverlay.js';
 import { TILE, WORLD_W, WORLD_H, GROUND_Y } from '../constants.js';
 import { SFX } from '../utils/sounds.js';
 import { FRUITS, BOXES, COINS } from '../data/level.js';
@@ -66,6 +68,7 @@ export default class GameScene extends Phaser.Scene {
     }
     this.physics.add.overlap(this.player, this.fruitGroup, (_player, fruit) => {
       fruit.collect();
+      this.hud.add(1);
     });
 
     // Boxes — overlap-only (no collision): player passes through from below,
@@ -92,6 +95,10 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.coinGroup, (_player, coin) => {
       if (coin.body?.enable) this.triggerExercise(coin);
     });
+
+    const initialTotal = FRUITS.length * 1 + COINS.length * 5;
+    this.hud = new ScoreHUD(this, initialTotal);
+    this._finished = false;
 
     this.cameras.main
       .setBounds(0, 0, WORLD_W, WORLD_H)
@@ -138,15 +145,18 @@ export default class GameScene extends Phaser.Scene {
     if (spawnType === 'exercise') {
       const coin = new ExerciseCoin(this, x, y);
       this.coinGroup.add(coin);
+      this.hud.addToTotal(5);
     } else {
       const fruit = new Fruit(this, x, y, spawnType);
       this.fruitGroup.add(fruit);
+      this.hud.addToTotal(1);
     }
   }
 
   triggerExercise(coin) {
     coin.body.enable = false;
     SFX.coin();
+    this.hud.add(5);
     new ExerciseOverlay(this, coin);
   }
 
@@ -160,5 +170,14 @@ export default class GameScene extends Phaser.Scene {
       SFX.land();
     }
     this._playerWasOnGround = nowOnGround;
+
+    if (!this._finished && this.player.x > WORLD_W - 80) {
+      this._finished = true;
+      this.player._inputDisabled = true;
+      this.physics.pause();
+      this.anims.pauseAll();
+      SFX.fanfare();
+      new FinishOverlay(this, this.hud.current, this.hud.total);
+    }
   }
 }

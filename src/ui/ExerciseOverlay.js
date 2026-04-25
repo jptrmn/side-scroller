@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
 import { EXERCISES } from '../data/exercises.js';
+import { SFX } from '../utils/sounds.js';
 
 export default class ExerciseOverlay {
   constructor(scene, coin) {
     this._scene  = scene;
     this._coin   = coin;
-    this._objs   = [];  // all display objects, cleaned up on dismiss
+    this._objs   = [];
+    this._illo   = null;
 
     scene.physics.pause();
     scene.anims.pauseAll();
@@ -18,7 +20,7 @@ export default class ExerciseOverlay {
   _show() {
     const scene = this._scene;
     const cam   = scene.cameras.main;
-    const cx    = 200, cy = 120;        // logical screen centre (game is 400×240)
+    const cx    = 200, cy = 120;
     const cardW = 112, cardH = 148;
 
     // ── Coin: shrink and disappear ──────────────────────────────────────────
@@ -50,12 +52,12 @@ export default class ExerciseOverlay {
     const coinScreenX = this._coin.x - cam.scrollX;
     const coinScreenY = this._coin.y - cam.scrollY;
 
-    const illo = scene.add.image(coinScreenX, coinScreenY, this._exercise.key)
+    this._illo = scene.add.image(coinScreenX, coinScreenY, this._exercise.key)
       .setScrollFactor(0).setDepth(62).setScale(0.15).setAlpha(0);
-    this._track(illo);
+    this._track(this._illo);
 
     scene.tweens.add({
-      targets: illo,
+      targets: this._illo,
       x: cx, y: cy - 20,
       scaleX: 1.25, scaleY: 1.25,
       alpha: 1,
@@ -79,7 +81,7 @@ export default class ExerciseOverlay {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(62).setAlpha(0);
     this._track(nameText);
 
-    const prompt = scene.add.text(cx, cy + 65, 'LEERTASTE  =  fertig  ✓', {
+    const prompt = scene.add.text(cx, cy + 65, 'LEERTASTE  =  Start  ▶', {
       fontSize: '7px',
       fontFamily: 'Arial',
       color: '#226622',
@@ -91,7 +93,6 @@ export default class ExerciseOverlay {
     scene.tweens.add({
       targets: prompt, alpha: 1, duration: 200, delay: 120,
       onComplete: () => {
-        // Blink the prompt
         scene.tweens.add({
           targets: prompt,
           alpha: 0.15,
@@ -101,14 +102,85 @@ export default class ExerciseOverlay {
           ease: 'Sine.easeInOut',
         });
 
-        // Wait 400 ms before listening for Space so an accidental press can't skip.
         scene.time.delayedCall(400, () => {
           scene.input.keyboard
             .addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-            .once('down', () => this._dismiss());
+            .once('down', () => this._startCountdown(prompt));
         });
       },
     });
+  }
+
+  _startCountdown(promptObj) {
+    const scene = this._scene;
+    const cx = 200, cy = 120;
+
+    scene.tweens.killTweensOf(promptObj);
+    scene.tweens.add({ targets: promptObj, alpha: 0, duration: 150 });
+
+    let count = 5;
+    const countText = scene.add.text(cx, cy + 58, '5', {
+      fontSize: '22px',
+      fontFamily: 'Arial Black, Arial',
+      fontStyle: 'bold',
+      color: '#553300',
+      align: 'center',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(62).setScale(1.8);
+    this._track(countText);
+
+    scene.tweens.add({ targets: countText, scaleX: 1, scaleY: 1, duration: 200, ease: 'Back.Out' });
+    SFX.tick();
+
+    const tick = () => {
+      count--;
+      if (count <= 0) {
+        countText.setText('0');
+        scene.tweens.add({
+          targets: countText,
+          scaleX: 1.5, scaleY: 1.5,
+          duration: 120,
+          ease: 'Quad.Out',
+          onComplete: () => this._showReward(countText),
+        });
+        return;
+      }
+      countText.setText(String(count));
+      countText.setScale(1.5);
+      scene.tweens.add({ targets: countText, scaleX: 1, scaleY: 1, duration: 200, ease: 'Back.Out' });
+      SFX.tick();
+    };
+
+    scene.time.addEvent({ delay: 1000, callback: tick, repeat: 4 });
+  }
+
+  _showReward(countText) {
+    const scene = this._scene;
+    const cx = 200, cy = 120;
+
+    SFX.reward();
+    scene.tweens.add({ targets: countText, alpha: 0, duration: 150 });
+
+    scene.tweens.add({
+      targets: this._illo,
+      scaleX: 1.6, scaleY: 1.6,
+      duration: 200,
+      ease: 'Quad.Out',
+      yoyo: true,
+      onComplete: () => { this._illo.setScale(1.25); },
+    });
+
+    const doneText = scene.add.text(cx, cy + 58, '✓  SUPER!', {
+      fontSize: '14px',
+      fontFamily: 'Arial Black, Arial',
+      fontStyle: 'bold',
+      color: '#226622',
+      align: 'center',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(62).setScale(0);
+    this._track(doneText);
+
+    scene.tweens.add({ targets: doneText, scaleX: 1, scaleY: 1, duration: 250, ease: 'Back.Out' });
+
+    scene.time.delayedCall(800, () => this._dismiss());
   }
 
   _dismiss() {
@@ -123,7 +195,6 @@ export default class ExerciseOverlay {
         this._coin.destroy();
         scene.physics.resume();
         scene.anims.resumeAll();
-        // Brief input lockout so the Space press can't also trigger a jump
         scene.player._inputDisabled = true;
         scene.time.delayedCall(180, () => {
           scene.player._inputDisabled = false;

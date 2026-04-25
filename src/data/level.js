@@ -25,6 +25,17 @@ export const BOXES = [
   { x: 1512, y: 100, type: 1 },
 ];
 
+// Pre-placed exercise coins: { x, y }
+// y = sprite center; 16px above platform surface (same rule as fruits).
+// Spread ~one per major platform section so exercises appear throughout the run.
+export const COINS = [
+  { x: 228,  y: 176 },  // platform 180 (surfaceY 192)
+  { x: 564,  y: 176 },  // platform 520 (surfaceY 192)
+  { x: 744,  y: 144 },  // platform 680 (surfaceY 160)
+  { x: 1364, y: 160 },  // platform 1320 (surfaceY 176)
+  { x: 1708, y: 176 },  // platform 1660 (surfaceY 192)
+];
+
 // Fruit spawn positions: { x, y, type }
 // y = center of the 32×32 sprite; place 16px above platform surface.
 // Platforms (x, surfaceY, widthInTiles) — surface_y values from GameScene PLATFORMS.

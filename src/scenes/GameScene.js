@@ -6,7 +6,7 @@ import ExerciseCoin from '../objects/ExerciseCoin.js';
 import ExerciseOverlay from '../ui/ExerciseOverlay.js';
 import { TILE, WORLD_W, WORLD_H, GROUND_Y } from '../constants.js';
 import { SFX } from '../utils/sounds.js';
-import { FRUITS, BOXES } from '../data/level.js';
+import { FRUITS, BOXES, COINS } from '../data/level.js';
 
 // [x, y, widthInTiles]  —  x/y in logical pixels, y = top surface of platform
 const PLATFORMS = [
@@ -84,8 +84,11 @@ export default class GameScene extends Phaser.Scene {
       },
     );
 
-    // Exercise coins (spawned dynamically when boxes break)
+    // Exercise coins — pre-placed in level + spawned dynamically when boxes break
     this.coinGroup = this.add.group();
+    for (const cd of COINS) {
+      this.coinGroup.add(new ExerciseCoin(this, cd.x, cd.y));
+    }
     this.physics.add.overlap(this.player, this.coinGroup, (_player, coin) => {
       if (coin.body?.enable) this.triggerExercise(coin);
     });

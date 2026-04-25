@@ -10,5 +10,5 @@ export const WALL_JUMP_VEL_Y  = -260;
 export const WALL_JUMP_VEL_X  = 200;
 export const WALL_SLIDE_VEL   = 60;  // max fall speed while wall-sliding
 
-export const BOX_FRUIT_CHANCE = 0.70;
+export const BOX_FRUIT_CHANCE = 0.40;
 export const COYOTE_FRAMES    = 8;

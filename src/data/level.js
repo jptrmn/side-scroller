@@ -43,7 +43,7 @@ export const COINS = [
 export const FRUITS = [
   // Ground (surfaceY=224 → y=208)
   { x: 100,  y: 208, type: 'apple'      },
-  { x: 250,  y: 208, type: 'banana'     },
+  { x: 290,  y: 208, type: 'banana'     },
 
   // Platform  180, surfaceY 192 → y=176
   { x: 212,  y: 176, type: 'kiwi'       },

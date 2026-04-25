@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SFX } from '../utils/sounds.js';
 
 export default class Fruit extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, type) {
@@ -19,6 +20,7 @@ export default class Fruit extends Phaser.Physics.Arcade.Sprite {
 
   collect() {
     this.body.enable = false;  // prevent double-collection
+    SFX.fruit();
     this.play('fruit-collected', true);
     this.once('animationcomplete', () => this.destroy());
   }

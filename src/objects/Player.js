@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SFX } from '../utils/sounds.js';
 import {
   PLAYER_SPEED,
   JUMP_VEL, DOUBLE_JUMP_VEL,
@@ -75,8 +76,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this._jumpsLeft--;
       this._coyoteFrames = 0;
       if (isFirst) {
+        SFX.jump();
         this.play('frog-jump', true);
       } else {
+        SFX.doublejump();
         this._playLocked('frog-doublejump');
       }
     }

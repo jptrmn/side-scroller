@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BOX_FRUIT_CHANCE } from '../constants.js';
+import { SFX } from '../utils/sounds.js';
 
 const FRUIT_TYPES = ['apple', 'banana', 'cherry', 'kiwi', 'melon', 'orange', 'pineapple', 'strawberry'];
 
@@ -17,7 +18,7 @@ export default class Box extends Phaser.Physics.Arcade.Sprite {
     if (this._breaking) return;
     this._breaking = true;
     this.body.enable = false;
-
+    SFX.boxHit();
     this.play(`box${this._type}-hit`);
     this.once('animationcomplete', () => {
       this.play(`box${this._type}-break`);

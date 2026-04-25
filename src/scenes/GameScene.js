@@ -5,6 +5,7 @@ import Box from '../objects/Box.js';
 import ExerciseCoin from '../objects/ExerciseCoin.js';
 import ExerciseOverlay from '../ui/ExerciseOverlay.js';
 import { TILE, WORLD_W, WORLD_H, GROUND_Y } from '../constants.js';
+import { SFX } from '../utils/sounds.js';
 import { FRUITS, BOXES } from '../data/level.js';
 
 // [x, y, widthInTiles]  —  x/y in logical pixels, y = top surface of platform
@@ -142,6 +143,7 @@ export default class GameScene extends Phaser.Scene {
 
   triggerExercise(coin) {
     coin.body.enable = false;
+    SFX.coin();
     new ExerciseOverlay(this, coin);
   }
 
@@ -152,6 +154,7 @@ export default class GameScene extends Phaser.Scene {
     const nowOnGround = this.player.body.blocked.down;
     if (!this._playerWasOnGround && nowOnGround) {
       this._dustEmitter.explode(6, this.player.x, this.player.y + 14);
+      SFX.land();
     }
     this._playerWasOnGround = nowOnGround;
   }

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { EXERCISES } from '../data/exercises.js';
+import { initSounds } from '../utils/sounds.js';
 
 const PA = 'assets/PixelAdventure';
 
@@ -49,6 +50,7 @@ export default class BootScene extends Phaser.Scene {
     this._registerDustTexture();
     this._registerExerciseTextures();
     this._defineAnims();
+    initSounds(this);
     this.scene.start('GameScene');
   }
 

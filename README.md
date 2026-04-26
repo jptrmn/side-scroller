@@ -145,3 +145,4 @@ docs/
 - [Architecture](docs/architecture.md) — module graph, scene lifecycle, coordinate system
 - [State & data](docs/state.md) — what lives where, player state machine
 - [Exercise flow](docs/exercise-flow.md) — full sequence diagram, timing, where feedback lives
+- [Sound engine](docs/sounds.md) — how to add and edit sounds

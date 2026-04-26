@@ -43,6 +43,7 @@ src/
     sounds.js              Web Audio API synthesizer — initSounds() + SFX object
 assets/PixelAdventure/     sprite pack (do not modify)
 assets/spritepack-zunge.png  5×2 grid of 290×368 face sprites for exercise illustrations
+docs/sounds.md             how to add/edit sounds — blip() reference, note→Hz table, recipes
 ```
 
 ## Key implementation details
